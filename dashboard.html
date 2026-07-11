@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Operations Dashboard — Homemade CEO</title>
+  <meta name="description" content="Kudumbashree seller tracking dashboard. Monitor seller onboarding, product validation, and margin health across Kerala.">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body class="dashboard-page">
+
+  <!-- ═══ NAV ═══════════════════════════════════════════════ -->
+  <nav class="dash-nav">
+    <a href="index.html" class="dash-brand">
+      <div class="dash-brand-mark">H</div>
+      <div class="dash-brand-text">
+        <div class="dash-brand-name">Homemade CEO</div>
+        <div class="dash-brand-sub">Operations Dashboard</div>
+      </div>
+    </a>
+
+    <div class="dash-nav-right">
+      <div class="dash-govt-pill">
+        <i data-lucide="landmark" class="icon-xs"></i>
+        <span>LSGD · Kudumbashree Initiative</span>
+      </div>
+      <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(27,107,122,0.12);border:1px solid rgba(27,107,122,0.3);color:var(--teal-light,#6ECBD8);font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:9999px">
+        <i data-lucide="layout-dashboard" style="width:10px;height:10px"></i> LSGD OFFICER
+      </span>
+      <a href="chat.html" class="dash-new-btn">
+        <i data-lucide="plus" class="icon-xs"></i> New Seller Demo
+      </a>
+    </div>
+  </nav>
+
+  <!-- ═══ BODY ═══════════════════════════════════════════════ -->
+  <main class="dash-body">
+
+    <!-- Page header -->
+    <div class="dash-page-header">
+      <div class="dash-page-title">
+        <h1>Seller Overview</h1>
+        <p>Track onboarding, product validation, and margin performance across Kerala districts</p>
+      </div>
+      <div class="dash-date-pill">
+        <i data-lucide="calendar" class="icon-xs"></i>
+        <span id="dash-date">—</span>
+      </div>
+    </div>
+
+    <!-- ─── KPI Stats ──────────────────────────────────────── -->
+    <div class="stats-grid">
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <div class="kpi-icon"><i data-lucide="users" class="icon-md"></i></div>
+          <div class="kpi-trend">
+            <i data-lucide="trending-up" class="icon-xs"></i> Active
+          </div>
+        </div>
+        <div class="kpi-value" id="stat-total">—</div>
+        <div class="kpi-label">Total Sellers</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <div class="kpi-icon"><i data-lucide="shield-check" class="icon-md"></i></div>
+          <div class="kpi-trend">
+            <i data-lucide="check" class="icon-xs"></i> Validated
+          </div>
+        </div>
+        <div class="kpi-value" id="stat-validated">—</div>
+        <div class="kpi-label">Validated Products</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <div class="kpi-icon"><i data-lucide="percent" class="icon-md"></i></div>
+        </div>
+        <div class="kpi-value" id="stat-margin">—</div>
+        <div class="kpi-label">Avg Gross Margin</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <div class="kpi-icon"><i data-lucide="calendar-days" class="icon-md"></i></div>
+        </div>
+        <div class="kpi-value" id="stat-month">—</div>
+        <div class="kpi-label">This Month Active</div>
+      </div>
+    </div>
+
+    <!-- ─── Analytics row ─────────────────────────────────── -->
+    <div class="analytics-row">
+
+      <!-- District coverage -->
+      <div class="analytics-card">
+        <div class="analytics-card-header">
+          <div class="analytics-card-title">
+            <i data-lucide="map-pin" class="icon-xs" style="color:var(--gold)"></i>
+            District Coverage
+          </div>
+          <div class="analytics-card-sub">Sellers across Kerala</div>
+        </div>
+        <div class="district-list" id="district-list"></div>
+      </div>
+
+      <!-- Pipeline funnel -->
+      <div class="analytics-card">
+        <div class="analytics-card-header">
+          <div class="analytics-card-title">
+            <i data-lucide="filter" class="icon-xs" style="color:var(--teal)"></i>
+            Seller Pipeline
+          </div>
+          <div class="analytics-card-sub">Onboarding to validation funnel</div>
+        </div>
+        <div class="funnel-list" id="funnel-list"></div>
+      </div>
+
+      <!-- Activity feed -->
+      <div class="analytics-card">
+        <div class="analytics-card-header">
+          <div class="analytics-card-title">
+            <i data-lucide="activity" class="icon-xs" style="color:var(--kerala-red)"></i>
+            Recent Activity
+          </div>
+          <div class="analytics-card-sub">Latest Jami conversations</div>
+        </div>
+        <div class="activity-feed" id="activity-feed"></div>
+      </div>
+
+    </div>
+
+    <!-- ─── Sellers table ─────────────────────────────────── -->
+
+    <div class="dash-main">
+
+      <!-- Toolbar -->
+      <div class="table-toolbar">
+        <div class="table-toolbar-left">
+          <div class="table-toolbar-title">Seller Registry</div>
+          <div class="table-toolbar-sub">
+            <span class="live-dot"></span>
+            Live-synced from Jami conversations · auto-refreshes every 5s
+          </div>
+        </div>
+
+        <div class="table-toolbar-right">
+          <div class="search-wrap">
+            <i data-lucide="search" class="icon-sm search-wrap-icon"></i>
+            <input type="text" class="search-input" id="search-input"
+                   placeholder="Search seller, product, district…" aria-label="Search sellers">
+          </div>
+
+          <select class="filter-select" id="status-filter" aria-label="Filter by status">
+            <option value="all">All Statuses</option>
+            <option value="onboarding">Onboarding</option>
+            <option value="intake">Product Intake</option>
+            <option value="validated">Validated</option>
+          </select>
+
+          <button class="reset-btn" id="reset-btn" title="Clear live demo sellers">
+            <i data-lucide="rotate-ccw" class="icon-xs"></i> Reset Demo
+          </button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div style="overflow-x:auto;">
+        <table class="sellers-table" aria-label="Seller registry">
+          <thead>
+            <tr>
+              <th data-sort="name">
+                <div class="th-inner">Seller <i data-lucide="chevrons-up-down" class="icon-xs sort-icon"></i></div>
+              </th>
+              <th data-sort="product">
+                <div class="th-inner">Product <i data-lucide="chevrons-up-down" class="icon-xs sort-icon"></i></div>
+              </th>
+              <th data-sort="status">
+                <div class="th-inner">Status <i data-lucide="chevrons-up-down" class="icon-xs sort-icon"></i></div>
+              </th>
+              <th data-sort="margin" class="sorted">
+                <div class="th-inner">Margin <i data-lucide="chevron-down" class="icon-xs sort-icon"></i></div>
+              </th>
+              <th data-sort="createdAt">
+                <div class="th-inner">Activity <i data-lucide="chevrons-up-down" class="icon-xs sort-icon"></i></div>
+              </th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sellers-tbody">
+            <!-- Populated by dashboard-ui.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Table footer -->
+      <div class="table-foot">
+        <span id="table-count" class="text-muted">Loading…</span>
+        <div class="auto-refresh-pill">
+          <span class="live-dot"></span> Auto-refreshing
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══ GOVERNMENT FOOTER BAR ════════════════════════════ -->
+  <footer>
+    <div class="govt-bar">
+      <div class="govt-item">
+        <i data-lucide="landmark" style="width:14px;height:14px;color:rgba(255,255,255,0.3)"></i>
+        <strong>LSGD Kerala</strong> · Government of Kerala
+      </div>
+      <div class="govt-divider"></div>
+      <div class="govt-item">
+        <i data-lucide="users" style="width:14px;height:14px;color:rgba(255,255,255,0.3)"></i>
+        <strong>Kudumbashree</strong> · നമ്മൾ നമുക്കായി
+      </div>
+      <div class="govt-divider"></div>
+      <div class="govt-item">
+        <i data-lucide="cpu" style="width:14px;height:14px;color:rgba(255,255,255,0.3)"></i>
+        <strong>Jami AI</strong> · Powered
+      </div>
+      <div class="govt-divider"></div>
+      <div class="govt-item">
+        <i data-lucide="map-pin" style="width:14px;height:14px;color:rgba(255,255,255,0.3)"></i>
+        <strong>Kerala</strong> · India · 2026
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-container"></div>
+
+  <script src="js/margin.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/dashboard-ui.js"></script>
+  <script src="js/easter-eggs.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

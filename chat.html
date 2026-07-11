@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat with Jami — Homemade CEO</title>
+  <meta name="description" content="Talk to Jami, your AI business partner. Get your product validated and your listing created.">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body class="chat-page">
+
+  <!-- ═══ TOP NAV BAR ══════════════════════════════════════ -->
+  <header class="chat-topbar">
+    <div class="topbar-left">
+      <a href="index.html" class="topbar-back" title="Back to home">
+        <i data-lucide="arrow-left" class="icon-md"></i>
+      </a>
+      <div class="topbar-divider"></div>
+      <div class="topbar-jami">
+        <img class="topbar-avatar" src="assets/jami-avatar.png" alt="Jami"
+             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 36 36%22><circle cx=%2218%22 cy=%2218%22 r=%2218%22 fill=%22%23C8860A%22/><text x=%2218%22 y=%2223%22 text-anchor=%22middle%22 font-size=%2215%22 fill=%22white%22 font-family=%22Georgia%22>J</text></svg>'">
+        <div>
+          <div class="topbar-name">Jami</div>
+          <div class="topbar-status">
+            <span class="status-dot"></span>
+            <span>Your AI Business Partner · Homemade CEO</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <!-- Language toggle -->
+      <label class="lang-toggle" title="Toggle Malayalam">
+        <span>EN</span>
+        <input type="checkbox" id="lang-toggle">
+        <div class="toggle-track"></div>
+        <span>ML</span>
+      </label>
+
+      <div class="topbar-divider"></div>
+
+      <!-- Settings -->
+      <button class="icon-btn" id="settings-btn" title="LLM Settings" aria-label="Open LLM settings">
+        <i data-lucide="settings-2" class="icon-sm"></i>
+      </button>
+
+      <!-- Role pill -->
+      <span class="mode-pill" style="background:rgba(200,134,10,0.1);border-color:rgba(200,134,10,0.25);color:var(--gold-pale)">
+        <i data-lucide="user" style="width:10px;height:10px"></i> SELLER
+      </span>
+
+      <!-- Mode badge -->
+      <span class="mode-pill" id="api-mode-badge">MOCK</span>
+    </div>
+  </header>
+
+  <!-- ═══ BODY ══════════════════════════════════════════════ -->
+  <div class="chat-body">
+
+    <!-- ─── LEFT SIDEBAR ──────────────────────────────────── -->
+    <aside class="chat-sidebar" aria-label="Conversation context">
+
+      <!-- Jami Profile -->
+      <div class="sidebar-profile">
+        <div class="sidebar-avatar-wrap">
+          <img class="sidebar-avatar" src="assets/jami-avatar.png" alt="Jami"
+               onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 72 72%22><circle cx=%2236%22 cy=%2236%22 r=%2236%22 fill=%22%23C8860A%22/><text x=%2236%22 y=%2246%22 text-anchor=%22middle%22 font-size=%2228%22 fill=%22white%22 font-family=%22Georgia%22>J</text></svg>'">
+          <div class="sidebar-avatar-badge"></div>
+        </div>
+        <div class="sidebar-name">Jami</div>
+        <div class="sidebar-role">AI Business Partner</div>
+        <p class="sidebar-desc">Backed by Kudumbashree · LSGD Kerala<br>She helps you build, price, and launch your product — one conversation at a time.</p>
+      </div>
+
+      <!-- Journey Progress -->
+      <div class="sidebar-journey">
+        <div class="sidebar-section-label">Your Journey</div>
+        <div class="journey-steps">
+
+          <div class="journey-step active" id="jstep-onboarding">
+            <div class="step-indicator">1</div>
+            <div class="step-text">
+              <div class="step-title">Meet Jami</div>
+              <div class="step-sub">Name &amp; district</div>
+            </div>
+          </div>
+
+          <div class="journey-step" id="jstep-intake">
+            <div class="step-indicator">2</div>
+            <div class="step-text">
+              <div class="step-title">Your Product</div>
+              <div class="step-sub">Name, story &amp; photo</div>
+            </div>
+          </div>
+
+          <div class="journey-step" id="jstep-costing">
+            <div class="step-indicator">3</div>
+            <div class="step-text">
+              <div class="step-title">Cost Check</div>
+              <div class="step-sub">Margin &amp; pricing</div>
+            </div>
+          </div>
+
+          <div class="journey-step" id="jstep-validated">
+            <div class="step-indicator">
+              <i data-lucide="check" class="icon-xs"></i>
+            </div>
+            <div class="step-text">
+              <div class="step-title">Validated</div>
+              <div class="step-sub">Listing goes live</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Tips -->
+      <div class="sidebar-tips">
+        <div class="sidebar-section-label">Tips for Demo</div>
+
+        <div class="tip-card">
+          <div class="tip-card-header">
+            <i data-lucide="user" class="icon-xs tip-card-icon"></i>
+            <span class="tip-card-title">Getting Started</span>
+          </div>
+          <p class="tip-card-text">Type your name to begin. Jami will guide you step by step through the full onboarding flow.</p>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-card-header">
+            <i data-lucide="package" class="icon-xs tip-card-icon"></i>
+            <span class="tip-card-title">Try These Products</span>
+          </div>
+          <p class="tip-card-text">"Nendran Banana Chips", "Coconut Oil", "Mango Pickle", "Handmade Soap" — all have great margin stories.</p>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-card-header">
+            <i data-lucide="zap" class="icon-xs tip-card-icon"></i>
+            <span class="tip-card-title">Easter Egg</span>
+          </div>
+          <p class="tip-card-text">Type "ente kerala" or "sadya" to discover a hidden Kerala surprise from Jami.</p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="sidebar-footer">
+        <span class="sidebar-footer-text">PROTOTYPE · 2026</span>
+        <button class="sidebar-reset-btn" id="sidebar-reset-btn">
+          <i data-lucide="rotate-ccw" style="width:9px;height:9px;"></i> Reset
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- ─── CHAT PANEL ─────────────────────────────────────── -->
+    <div class="chat-panel">
+
+      <!-- Messages -->
+      <main class="messages-area" id="messages"
+            role="log" aria-label="Chat messages" aria-live="polite"></main>
+
+      <!-- Input -->
+      <footer class="chat-input-area">
+        <button class="attach-btn" id="attach-btn" title="Attach photo" aria-label="Attach product photo">
+          <i data-lucide="paperclip" class="icon-sm"></i>
+        </button>
+        <input type="file" id="file-input" accept="image/*" style="display:none" aria-label="Upload product photo">
+
+        <div class="msg-input-wrap">
+          <input type="text" id="message-input"
+                 placeholder="Type your reply to Jami…"
+                 autocomplete="off" spellcheck="true"
+                 aria-label="Type your message">
+        </div>
+
+        <button class="send-btn" id="send-btn" title="Send" aria-label="Send message">
+          <i data-lucide="send" class="icon-sm"></i>
+        </button>
+      </footer>
+
+    </div><!-- /chat-panel -->
+
+  </div><!-- /chat-body -->
+
+  <!-- ═══ SETTINGS MODAL ═══════════════════════════════════ -->
+  <div class="modal-backdrop hidden" id="settings-modal"
+       role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal-heading">
+        <i data-lucide="cpu" class="icon-md" style="color:var(--gold)"></i>
+        <h3 id="modal-title">LLM Configuration</h3>
+      </div>
+      <p class="modal-sub">Connect a real language model so Jami generates live responses. Leave blank to keep mock mode.</p>
+
+      <div class="modal-field">
+        <label class="modal-label" for="modal-provider">Provider</label>
+        <select id="modal-provider" class="modal-input">
+          <option value="openai">OpenAI — GPT-4o, GPT-4-turbo</option>
+          <option value="anthropic">Anthropic — Claude 3.5, Claude 3</option>
+          <option value="gemini">Google — Gemini 1.5-flash, 1.5-pro</option>
+        </select>
+      </div>
+
+      <div class="modal-field">
+        <label class="modal-label" for="modal-api-key">API Key</label>
+        <input type="password" id="modal-api-key" class="modal-input"
+               placeholder="sk-… or AIza… (kept only in memory)">
+      </div>
+
+      <div class="modal-field">
+        <label class="modal-label" for="modal-model">
+          Model Override
+          <span style="font-weight:400;text-transform:none;letter-spacing:0;opacity:0.5">(optional)</span>
+        </label>
+        <input type="text" id="modal-model" class="modal-input"
+               placeholder="gpt-4o · claude-3-5-sonnet-20241022 · gemini-1.5-flash">
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="modal-close-btn">Cancel</button>
+        <button class="btn btn-gold" id="modal-save-btn">
+          <i data-lucide="zap" class="icon-sm"></i> Connect
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container"></div>
+
+  <script src="js/margin.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/jami.js"></script>
+  <script src="js/chat-ui.js"></script>
+  <script src="js/easter-eggs.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+
+      // Sidebar reset button
+      const resetBtn = document.getElementById('sidebar-reset-btn');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          if (confirm('Start a fresh conversation with Jami?')) {
+            location.reload();
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

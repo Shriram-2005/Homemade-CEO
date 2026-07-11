@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homemade CEO — Kerala's Entrepreneurs, Powered by Jami AI</title>
+  <meta name="description" content="Homemade CEO helps rural homemakers in Kerala become e-commerce entrepreneurs, backed by Kudumbashree and LSGD. Meet Jami, your AI business partner.">
+  <link rel="stylesheet" href="css/base.css">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    /* ─── Index page styles ─────────────────────────────────── */
+
+    /* Kasavu top bar */
+    .page-kasavu-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light), var(--gold), var(--gold-dark));
+    }
+
+    /* ── Navbar ─────────────────────────────────────────────── */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: var(--z-overlay);
+      background: rgba(12, 27, 58, 0.97);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(200,134,10,0.15);
+    }
+    .navbar-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .nav-logomark {
+      width: 38px; height: 38px;
+      background: var(--gold);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      color: var(--navy-dark);
+      font-weight: 400;
+      flex-shrink: 0;
+      transition: all var(--t-fast);
+    }
+    .nav-brand:hover .nav-logomark { background: var(--gold-light); transform: scale(1.05); }
+    .nav-wordmark {
+      display: flex;
+      flex-direction: column;
+    }
+    .nav-wordmark-name {
+      font-family: var(--font-serif);
+      font-size: 1.0625rem;
+      color: white;
+      line-height: 1.15;
+      font-weight: 400;
+    }
+    .nav-wordmark-sub {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-link {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: rgba(255,255,255,0.6);
+      padding: 7px 14px;
+      border-radius: var(--r-full);
+      transition: all var(--t-fast);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-link:hover { color: white; background: rgba(255,255,255,0.08); }
+    .nav-cta {
+      background: var(--gold);
+      color: var(--navy-dark);
+      font-weight: 700;
+      font-size: var(--text-sm);
+      padding: 9px 20px;
+      border-radius: var(--r-full);
+      text-decoration: none;
+      transition: all var(--t-fast);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 8px;
+    }
+    .nav-cta:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-gold);
+    }
+
+    /* ── Hero ────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 45%, #1A3366 100%);
+      min-height: calc(100vh - 68px);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Kerala landscape SVG background */
+    .kerala-landscape {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Radial glow */
+    .hero-glow {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,134,10,0.1) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 80px 40px 160px;
+      display: grid;
+      grid-template-columns: 1fr 440px;
+      gap: 64px;
+      align-items: start;
+    }
+
+    /* Left: text */
+    .hero-text {}
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(200,134,10,0.12);
+      border: 1px solid rgba(200,134,10,0.25);
+      color: var(--gold-pale);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: var(--r-full);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-eyebrow-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: pulse 2s infinite;
+      flex-shrink: 0;
+    }
+
+    .hero-heading {
+      font-family: var(--font-serif);
+      font-size: clamp(2.75rem, 5.5vw, 4.5rem);
+      color: white;
+      line-height: 1.08;
+      margin-bottom: 20px;
+      animation: fadeUp 0.6s ease 0.1s both;
+    }
+    .hero-heading .accent { color: var(--gold); }
+    .hero-heading em {
+      font-style: italic;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .hero-body {
+      font-size: var(--text-md);
+      color: rgba(255,255,255,0.58);
+      line-height: 1.75;
+      max-width: 520px;
+      margin-bottom: 28px;
+      animation: fadeUp 0.6s ease 0.15s both;
+    }
+    .hero-body strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+    /* Backed by strip */
+    .hero-backed {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      animation: fadeUp 0.6s ease 0.2s both;
+    }
+    .backed-label { font-size: var(--text-xs); color: rgba(255,255,255,0.3); letter-spacing: 0.06em; text-transform: uppercase; }
+    .backed-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .backed-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: var(--r-full);
+    }
+
+    /* ── Role Selector ────────────────────────────────────────── */
+    .hero-roles {
+      animation: fadeUp 0.7s ease 0.2s both;
+    }
+    .role-label {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 14px;
+    }
+    .role-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .role-card {
+      display: block;
+      padding: 22px 24px;
+      border-radius: var(--r-xl);
+      text-decoration: none;
+      border: 1.5px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px);
+      transition: all var(--t-normal);
+      position: relative;
+      overflow: hidden;
+    }
+    .role-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      transition: opacity var(--t-normal);
+      opacity: 0.5;
+    }
+    .role-seller::before {
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
+    }
+    .role-officer::before {
+      background: linear-gradient(90deg, var(--teal), #4ABBC8, var(--teal));
+    }
+    .role-card:hover {
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+    }
+    .role-seller:hover { border-color: rgba(200,134,10,0.4); }
+    .role-officer:hover { border-color: rgba(27,107,122,0.5); }
+    .role-card::before { opacity: 1; }
+
+    .role-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .role-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .role-seller .role-icon { background: rgba(200,134,10,0.15); color: var(--gold); }
+    .role-officer .role-icon { background: rgba(27,107,122,0.15); color: var(--teal-light); }
+
+    .role-badge {
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: var(--r-full);
+      background: rgba(200,134,10,0.12);
+      color: var(--gold-pale);
+      border: 1px solid rgba(200,134,10,0.25);
+    }
+    .role-badge.officer {
+      background: rgba(27,107,122,0.15);
+      color: var(--teal-light);
+      border-color: rgba(27,107,122,0.3);
+    }
+
+    .role-card-name {
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: white;
+      margin-bottom: 6px;
+    }
+    .role-card-desc {
+      font-size: var(--text-sm);
+      color: rgba(255,255,255,0.45);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .role-card-features {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 16px;
+    }
+    .role-card-features span {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 600;
+      color: rgba(255,255,255,0.35);
+    }
+    .role-seller .role-card-features span { color: rgba(200,134,10,0.7); }
+    .role-officer .role-card-features span { color: rgba(27,107,122,0.9); }
+    .role-card-features i { flex-shrink: 0; opacity: 0.8; }
+
+    .role-card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      padding: 9px 18px;
+      border-radius: var(--r-full);
+      transition: all var(--t-fast);
+    }
+    .role-seller .role-card-cta {
+      background: var(--gold);
+      color: var(--navy-dark);
+    }
+    .role-seller:hover .role-card-cta { background: var(--gold-light); }
+    .role-officer .role-card-cta {
+      background: rgba(27,107,122,0.2);
+      color: var(--teal-light);
+      border: 1px solid rgba(27,107,122,0.35);
+    }
+    .role-officer:hover .role-card-cta {
+      background: rgba(27,107,122,0.35);
+    }
+
+    /* ── Stats bar ───────────────────────────────────────────── */
+    .stats-bar {
+      background: rgba(7, 17, 31, 0.7);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      padding: 20px 40px;
+      position: relative;
+      z-index: 1;
+    }
+    .stats-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 0 48px;
+      position: relative;
+    }
+    .stat-item + .stat-item::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 15%; bottom: 15%;
+      width: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+    .stat-value {
+      font-family: var(--font-serif);
+      font-size: var(--text-2xl);
+      font-weight: 400;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: var(--text-xs);
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── Features section ────────────────────────────────────── */
+    .features-section {
+      background: var(--ivory);
+      padding: 96px 40px;
+    }
+    .section-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .section-eyebrow {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-eyebrow::before {
+      content: '';
+      width: 24px; height: 2px;
+      background: var(--gold);
+      display: inline-block;
+    }
+    .section-heading {
+      margin-bottom: 12px;
+    }
+    .section-sub {
+      font-size: var(--text-md);
+      color: var(--text-muted);
+      max-width: 520px;
+      margin-bottom: 56px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--r-xl);
+      padding: 32px;
+      transition: all var(--t-normal);
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--t-normal);
+    }
+    .feature-card:hover {
+      border-color: var(--gold);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+    .feature-card:hover::after { transform: scaleX(1); }
+
+    .feature-icon {
+      width: 52px; height: 52px;
+      border-radius: var(--r-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: white;
+    }
+    .fi-navy   { background: var(--navy); }
+    .fi-gold   { background: var(--gold); color: var(--navy-dark); }
+    .fi-teal   { background: var(--teal); }
+    .fi-green  { background: var(--green); }
+    .fi-red    { background: var(--kerala-red); }
+    .fi-slate  { background: var(--slate-700); }
+
+    .feature-title {
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+    .feature-desc {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* ── How it works ─────────────────────────────────────────── */
+    .how-section {
+      background: var(--navy);
+      padding: 96px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .how-section::before {
+      content: '';
+      position: absolute;
+      top: -200px; right: -200px;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(200,134,10,0.06) 0%, transparent 70%);
+    }
+
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      position: relative;
+    }
+    .how-grid::before {
+      content: '';
+      position: absolute;
+      top: 26px;
+      left: calc(12.5%);
+      right: calc(12.5%);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(200,134,10,0.3), rgba(200,134,10,0.3), transparent);
+    }
+
+    .how-step {
+      padding: 0 24px;
+      text-align: center;
+    }
+    .step-number-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .step-number {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      border: 2px solid rgba(200,134,10,0.35);
+      background: rgba(200,134,10,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold);
+      position: relative;
+      z-index: 1;
+    }
+    .step-number svg { width: 22px; height: 22px; }
+    .how-step-title {
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+    }
+    .how-step-desc {
+      font-size: var(--text-sm);
+      color: rgba(255,255,255,0.45);
+      line-height: 1.65;
+    }
+
+    /* ── Kerala cultural strip ────────────────────────────────── */
+    .kerala-strip {
+      background: var(--kasavu);
+      padding: 20px 40px;
+      border-top: 3px solid var(--gold);
+      border-bottom: 3px solid var(--gold);
+    }
+    .kerala-strip-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+    .kerala-fact {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: var(--text-sm);
+      color: var(--navy);
+    }
+    .kerala-fact-icon {
+      width: 32px; height: 32px;
+      background: rgba(200,134,10,0.15);
+      border-radius: var(--r-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-dark);
+      flex-shrink: 0;
+    }
+    .kerala-fact strong { font-weight: 700; }
+
+    /* ── Final CTA ─────────────────────────────────────────────── */
+    .cta-section {
+      background: var(--ivory);
+      padding: 96px 40px;
+    }
+    .cta-card {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      border-radius: var(--r-2xl);
+      padding: 72px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .cta-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C8860A' fill-opacity='0.04'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .cta-card-inner { position: relative; z-index: 1; }
+    .cta-card h2 { color: white; margin-bottom: 14px; }
+    .cta-card p { color: rgba(255,255,255,0.55); max-width: 480px; margin: 0 auto 36px; font-size: var(--text-md); }
+    .cta-btns { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+
+    /* ── Footer ────────────────────────────────────────────────── */
+    .footer {
+      background: var(--navy-dark);
+      padding: 28px 40px;
+    }
+    .footer-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .footer-brand {
+      font-family: var(--font-serif);
+      font-size: var(--text-md);
+      color: var(--gold);
+    }
+    .footer-text { font-size: var(--text-xs); color: rgba(255,255,255,0.3); }
+    .footer-note {
+      font-size: var(--text-xs);
+      color: rgba(255,255,255,0.2);
+      font-style: italic;
+    }
+
+    /* ── Responsive ─────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .hero-inner { grid-template-columns: 1fr; padding-bottom: 120px; }
+      .hero-cards { display: grid; grid-template-columns: 1fr 1fr; }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .how-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+      .how-grid::before { display: none; }
+    }
+    @media (max-width: 768px) {
+      .navbar-inner { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hero-inner { padding: 48px 20px 100px; }
+      .hero-cards { grid-template-columns: 1fr; }
+      .stats-bar { padding: 16px 20px; }
+      .stat-item { padding: 0 24px; }
+      .features-section, .how-section, .cta-section { padding: 64px 20px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .how-grid { grid-template-columns: 1fr; }
+      .kerala-strip-inner { gap: 24px; }
+      .cta-card { padding: 40px 24px; }
+      .footer-inner { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Kasavu bar (Kerala textile motif at top) -->
+  <div class="page-kasavu-bar" role="presentation"></div>
+
+  <!-- ═══ NAVBAR ═══════════════════════════════════════════════ -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a class="nav-brand" href="index.html" data-easter="logo" id="nav-logo">
+        <div class="nav-logomark">H</div>
+        <div class="nav-wordmark">
+          <span class="nav-wordmark-name">Homemade CEO</span>
+          <span class="nav-wordmark-sub">Kerala · Kudumbashree</span>
+        </div>
+      </a>
+
+      <div class="nav-links">
+        <a href="chat.html" class="nav-link">
+          <i data-lucide="message-circle" class="icon-sm"></i> Chat with Jami
+        </a>
+        <a href="dashboard.html" class="nav-link">
+          <i data-lucide="layout-dashboard" class="icon-sm"></i> Dashboard
+        </a>
+        <a href="chat.html" class="nav-cta">
+          Start Demo <i data-lucide="arrow-right" class="icon-sm"></i>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══ HERO ═══════════════════════════════════════════════════ -->
+  <section class="hero" aria-label="Hero">
+    <div class="hero-glow"></div>
+
+    <!-- Kerala landscape SVG -->
+    <svg class="kerala-landscape" viewBox="0 0 1440 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <!-- Sky layer -->
+      <!-- Western Ghats - back range -->
+      <path d="M700,160 L800,100 L870,130 L960,60 L1060,100 L1160,50 L1280,90 L1440,60 L1440,280 L700,280 Z"
+            fill="rgba(200,134,10,0.04)"/>
+      <!-- Western Ghats - mid range -->
+      <path d="M720,180 L820,120 L920,150 L1020,90 L1120,125 L1220,80 L1340,110 L1440,85 L1440,280 L720,280 Z"
+            fill="rgba(12,27,58,0.2)"/>
+      <!-- Western Ghats - front range -->
+      <path d="M760,200 L860,145 L960,175 L1070,120 L1180,160 L1300,120 L1440,150 L1440,280 L760,280 Z"
+            fill="rgba(12,27,58,0.35)"/>
+
+      <!-- Coconut palm 1 (far left) -->
+      <g transform="translate(80,60)" opacity="0.6">
+        <path d="M8,220 C6,160 12,90 18,0" stroke="rgba(45,90,39,0.8)" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <path d="M18,5 C0,-15 -30,-35 -55,-25" stroke="rgba(45,90,39,0.7)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M18,5 C35,-18 65,-40 95,-28" stroke="rgba(45,90,39,0.7)" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M18,5 C10,-25 5,-60 15,-90" stroke="rgba(45,90,39,0.6)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M18,5 C-5,-10 -20,-45 -10,-75" stroke="rgba(45,90,39,0.6)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M18,5 C40,-5 60,-30 55,-60" stroke="rgba(45,90,39,0.6)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <ellipse cx="18" cy="10" rx="10" ry="8" fill="rgba(93,63,31,0.5)"/>
+      </g>
+
+      <!-- Coconut palm 2 -->
+      <g transform="translate(200,80)" opacity="0.5">
+        <path d="M5,200 C2,140 8,80 15,0" stroke="rgba(27,77,46,0.7)" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <path d="M15,5 C-5,-20 -40,-40 -65,-30" stroke="rgba(27,77,46,0.65)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M15,5 C30,-20 60,-42 80,-32" stroke="rgba(27,77,46,0.65)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M15,5 C8,-30 10,-65 20,-95" stroke="rgba(27,77,46,0.6)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <ellipse cx="15" cy="10" rx="9" ry="7" fill="rgba(93,63,31,0.4)"/>
+      </g>
+
+      <!-- Coconut palm 3 (right-mid) -->
+      <g transform="translate(600,90)" opacity="0.4">
+        <path d="M6,190 C3,130 10,70 16,0" stroke="rgba(45,90,39,0.65)" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <path d="M16,5 C-2,-18 -35,-38 -60,-28" stroke="rgba(45,90,39,0.6)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M16,5 C32,-18 62,-38 85,-28" stroke="rgba(45,90,39,0.6)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <path d="M16,5 C10,-28 12,-62 22,-90" stroke="rgba(45,90,39,0.55)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <ellipse cx="16" cy="10" rx="9" ry="7" fill="rgba(93,63,31,0.35)"/>
+      </g>
+
+      <!-- Backwater / lagoon -->
+      <path d="M0,240 Q180,225 360,240 Q540,255 720,240 Q900,225 1080,240 Q1260,255 1440,240 L1440,280 L0,280 Z"
+            fill="rgba(27,107,122,0.35)"/>
+      <!-- Water shimmer -->
+      <ellipse cx="300" cy="258" rx="120" ry="6" fill="rgba(255,255,255,0.06)"/>
+      <ellipse cx="800" cy="250" rx="160" ry="5" fill="rgba(255,255,255,0.05)"/>
+      <ellipse cx="1200" cy="257" rx="100" ry="4" fill="rgba(255,255,255,0.04)"/>
+
+      <!-- Snake boat (Vallam) silhouette -->
+      <g transform="translate(450, 242)" opacity="0.6">
+        <path d="M0,0 Q60,-12 120,0 Q60,10 0,0 Z" fill="rgba(200,134,10,0.5)"/>
+        <path d="M115,0 Q125,-6 122,6 Q118,4 115,0 Z" fill="rgba(139,26,26,0.6)"/>
+        <path d="M60,-6 Q55,-12 60,-16 Q65,-12 60,-6 Z" fill="rgba(200,134,10,0.4)"/>
+      </g>
+    </svg>
+
+    <!-- Hero content -->
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="hero-eyebrow">
+          <span class="hero-eyebrow-dot"></span>
+          LSGD Kerala &nbsp;·&nbsp; Kudumbashree Initiative &nbsp;·&nbsp; Prototype 2026
+        </div>
+
+        <h1 class="hero-heading">
+          Kerala's Homemakers.<br>
+          <span class="accent">Meet Their CEO.</span>
+        </h1>
+
+        <p class="hero-body">
+          Rural women across Kerala have the skills and the recipes.
+          <strong>Homemade CEO</strong> gives them the business infrastructure —
+          an AI partner named <strong>Jami</strong> who validates their product's
+          profitability and builds their storefront. All via WhatsApp.
+        </p>
+
+        <div class="hero-backed" style="margin-bottom:40px">
+          <span class="backed-label">Backed by</span>
+          <div class="backed-tags">
+            <span class="backed-tag"><i data-lucide="landmark" class="icon-xs"></i> LSGD Kerala</span>
+            <span class="backed-tag"><i data-lucide="users" class="icon-xs"></i> Kudumbashree</span>
+            <span class="backed-tag"><i data-lucide="shield-check" class="icon-xs"></i> Govt Backed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Role selector -->
+      <div class="hero-roles">
+        <div class="role-label">Enter the platform as</div>
+        <div class="role-cards">
+
+          <!-- Seller role -->
+          <a href="chat.html" class="role-card role-seller">
+            <div class="role-card-top">
+              <div class="role-icon">
+                <i data-lucide="message-circle" class="icon-lg"></i>
+              </div>
+              <span class="role-badge">Seller</span>
+            </div>
+            <div class="role-card-name">Homemaker Entrepreneur</div>
+            <div class="role-card-desc">Chat with Jami on WhatsApp. Get your product validated and your storefront built — step by step.</div>
+            <div class="role-card-features">
+              <span><i data-lucide="check" class="icon-xs"></i> AI-guided onboarding</span>
+              <span><i data-lucide="check" class="icon-xs"></i> Margin calculator</span>
+              <span><i data-lucide="check" class="icon-xs"></i> Live product listing</span>
+            </div>
+            <div class="role-card-cta">
+              Start Selling <i data-lucide="arrow-right" class="icon-sm"></i>
+            </div>
+          </a>
+
+          <!-- LSGD Officer role -->
+          <a href="dashboard.html" class="role-card role-officer">
+            <div class="role-card-top">
+              <div class="role-icon">
+                <i data-lucide="layout-dashboard" class="icon-lg"></i>
+              </div>
+              <span class="role-badge officer">LSGD Officer</span>
+            </div>
+            <div class="role-card-name">District Coordinator</div>
+            <div class="role-card-desc">Monitor seller onboarding, product validation, and margin health across your district.</div>
+            <div class="role-card-features">
+              <span><i data-lucide="check" class="icon-xs"></i> Seller registry</span>
+              <span><i data-lucide="check" class="icon-xs"></i> District analytics</span>
+              <span><i data-lucide="check" class="icon-xs"></i> Pipeline funnel</span>
+            </div>
+            <div class="role-card-cta">
+              Open Dashboard <i data-lucide="arrow-right" class="icon-sm"></i>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="stats-bar">
+      <div class="stats-inner">
+        <div class="stat-item">
+          <div class="stat-value">14</div>
+          <div class="stat-label">Districts of Kerala</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">100%</div>
+          <div class="stat-label">Margin Threshold</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">WhatsApp</div>
+          <div class="stat-label">Native Interface</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">Jami</div>
+          <div class="stat-label">Your AI Partner</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FEATURES ═══════════════════════════════════════════════ -->
+  <section class="features-section" aria-labelledby="features-heading">
+    <div class="section-inner">
+      <div class="section-eyebrow">Platform Features</div>
+      <h2 class="section-heading" id="features-heading">
+        Everything a Home Entrepreneur Needs
+      </h2>
+      <p class="section-sub">
+        From a seller's first conversation with Jami to a live product listing — the entire
+        journey in one integrated platform.
+      </p>
+
+      <div class="features-grid">
+        <div class="feature-card animate-fadeUp">
+          <div class="feature-icon fi-navy">
+            <i data-lucide="message-square" class="icon-lg"></i>
+          </div>
+          <div class="feature-title">WhatsApp-Native Onboarding</div>
+          <div class="feature-desc">No app downloads, no forms, no jargon. Sellers interact with Jami entirely through a familiar chat interface — in English or Malayalam.</div>
+        </div>
+
+        <div class="feature-card animate-fadeUp delay-100">
+          <div class="feature-icon fi-gold">
+            <i data-lucide="calculator" class="icon-lg"></i>
+          </div>
+          <div class="feature-title">Real Margin Validation</div>
+          <div class="feature-desc">Jami asks the right questions — including costs sellers routinely forget (packaging, wastage, own time) — and validates genuine profitability before any product goes live.</div>
+        </div>
+
+        <div class="feature-card animate-fadeUp delay-200">
+          <div class="feature-icon fi-teal">
+            <i data-lucide="store" class="icon-lg"></i>
+          </div>
+          <div class="feature-title">Instant Product Listings</div>
+          <div class="feature-desc">Once validated, a mobile-ready product landing page is auto-generated with the seller's story, photos, and a direct WhatsApp order button.</div>
+        </div>
+
+        <div class="feature-card animate-fadeUp delay-100">
+          <div class="feature-icon fi-slate">
+            <i data-lucide="bar-chart-2" class="icon-lg"></i>
+          </div>
+          <div class="feature-title">Government-Facing Dashboard</div>
+          <div class="feature-desc">Kudumbashree and LSGD teams get a clean ops view — every seller's journey, product status, and margin health in one credible, professional interface.</div>
+        </div>
+
+        <div class="feature-card animate-fadeUp delay-200">
+          <div class="feature-icon fi-green">
+            <i data-lucide="languages" class="icon-lg"></i>
+          </div>
+          <div class="feature-title">Malayalam First</div>
+          <div class="feature-desc">Jami converses natively in Malayalam — not a translation layer on top of English, but responses generated directly in the language sellers live and think in.</div>
+        </div>
+
+        <div class="feature-card animate-fadeUp delay-300">
+          <div class="feature-icon fi-red">
+            <i data-lucide="heart-handshake" class="icon-lg"></i>
+          </div>
+          <div class="feature-title">Dignified, Not Charity</div>
+          <div class="feature-desc">Every interaction is designed to feel aspirational and professional — for both the seller and the government stakeholder viewing the same system.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ HOW IT WORKS ═══════════════════════════════════════════ -->
+  <section class="how-section" aria-labelledby="how-heading">
+    <div class="section-inner">
+      <div class="section-eyebrow" style="color:rgba(200,134,10,0.7);">The Journey</div>
+      <h2 class="section-heading" style="color:white;margin-bottom:12px;" id="how-heading">
+        Homemaker to Entrepreneur in Four Steps
+      </h2>
+      <p class="section-sub" style="margin-bottom:64px;">
+        A seller's complete journey — from first greeting to validated product on the market.
+      </p>
+
+      <div class="how-grid">
+        <div class="how-step">
+          <div class="step-number-wrap">
+            <div class="step-number">
+              <i data-lucide="message-circle"></i>
+            </div>
+          </div>
+          <div class="how-step-title">Meet Jami</div>
+          <div class="how-step-desc">A seller opens the chat. Jami greets her in Malayalam or English, learns her name and district, and begins the partnership.</div>
+        </div>
+
+        <div class="how-step">
+          <div class="step-number-wrap">
+            <div class="step-number">
+              <i data-lucide="package"></i>
+            </div>
+          </div>
+          <div class="how-step-title">Product Intake</div>
+          <div class="how-step-desc">Jami walks through product description, photos, and all costs — probing specifically for what most sellers undercount.</div>
+        </div>
+
+        <div class="how-step">
+          <div class="step-number-wrap">
+            <div class="step-number">
+              <i data-lucide="shield-check"></i>
+            </div>
+          </div>
+          <div class="how-step-title">Margin Validation</div>
+          <div class="how-step-desc">Jami calculates gross margin. If ≥ 100%, the product is validated and celebrated. If not, she coaches on pricing — no rejection, just guidance.</div>
+        </div>
+
+        <div class="how-step">
+          <div class="step-number-wrap">
+            <div class="step-number">
+              <i data-lucide="external-link"></i>
+            </div>
+          </div>
+          <div class="how-step-title">Go Live</div>
+          <div class="how-step-desc">A branded product listing is auto-generated. The seller appears in the government dashboard instantly, ready for orders via WhatsApp.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ KERALA FACTS STRIP ════════════════════════════════════ -->
+  <div class="kerala-strip" role="complementary" aria-label="Kerala context">
+    <div class="kerala-strip-inner">
+      <div class="kerala-fact">
+        <div class="kerala-fact-icon">
+          <i data-lucide="map-pin" class="icon-sm"></i>
+        </div>
+        <span><strong>14 districts</strong> of Kerala covered</span>
+      </div>
+      <div class="kerala-fact">
+        <div class="kerala-fact-icon">
+          <i data-lucide="users" class="icon-sm"></i>
+        </div>
+        <span>Built for <strong>Kudumbashree</strong> Koottaymas</span>
+      </div>
+      <div class="kerala-fact">
+        <div class="kerala-fact-icon">
+          <i data-lucide="smartphone" class="icon-sm"></i>
+        </div>
+        <span>Works on any <strong>WhatsApp</strong> phone</span>
+      </div>
+      <div class="kerala-fact">
+        <div class="kerala-fact-icon">
+          <i data-lucide="leaf" class="icon-sm"></i>
+        </div>
+        <span><strong>Kerala's spices, crafts</strong> &amp; food — to the world</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ FINAL CTA ════════════════════════════════════════════ -->
+  <section class="cta-section" aria-label="Call to action">
+    <div class="cta-card">
+      <div class="cta-card-inner">
+        <h2>Ready to See the Full Demo?</h2>
+        <p>Walk through the complete seller journey — from Jami's first greeting to a validated product listing appearing in the government dashboard.</p>
+        <div class="cta-btns">
+          <a href="chat.html" class="btn btn-gold btn-lg">
+            <i data-lucide="message-circle" class="icon-md"></i>
+            Start as Seller
+          </a>
+          <a href="dashboard.html" class="btn btn-outline btn-lg" style="color:white;border-color:rgba(255,255,255,0.25);">
+            <i data-lucide="layout-dashboard" class="icon-md"></i>
+            View Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span class="footer-brand">Homemade CEO</span>
+      <span class="footer-text">Prototype · LSGD Kerala · Kudumbashree · 2026</span>
+      <span class="footer-note">Named in memory of Jami — so every homemaker can be a CEO.</span>
+    </div>
+  </footer>
+
+  <div class="toast-container"></div>
+
+  <script src="js/margin.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/easter-eggs.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      Store.init();
+    });
+  </script>
+</body>
+</html>

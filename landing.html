@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product — Homemade CEO</title>
+  <meta name="description" content="A handcrafted product by a Kerala home entrepreneur. Order directly via WhatsApp.">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/landing.css">
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body class="landing-page">
+
+  <!-- Kasavu gold top bar (fixed) -->
+  <div class="kasavu-top" role="presentation"></div>
+
+  <!-- ═══ ANNOUNCEMENT STRIP ════════════════════════════════ -->
+  <div class="announce-strip">
+    <div class="announce-item">
+      <i data-lucide="leaf" style="width:12px;height:12px;"></i>
+      <span><strong>100% Handmade</strong> · Locally Sourced</span>
+    </div>
+    <div class="announce-div"></div>
+    <div class="announce-item">
+      <i data-lucide="truck" style="width:12px;height:12px;"></i>
+      <span>Free delivery on orders above ₹499 within Kerala</span>
+    </div>
+    <div class="announce-div"></div>
+    <div class="announce-item">
+      <i data-lucide="shield-check" style="width:12px;height:12px;"></i>
+      <span><strong>Kudumbashree</strong> Backed Seller</span>
+    </div>
+  </div>
+
+  <!-- ═══ NAV ════════════════════════════════════════════════ -->
+  <nav class="landing-nav">
+    <a href="index.html" class="land-brand">
+      <div class="land-brand-mark">H</div>
+      <span class="land-brand-name">Homemade CEO</span>
+    </a>
+    <div class="landing-nav-actions">
+      <a href="dashboard.html" class="nav-back-link">
+        <i data-lucide="arrow-left" class="icon-sm"></i> Dashboard
+      </a>
+      <a id="nav-wa-btn" href="#" class="wa-nav-btn" target="_blank" rel="noopener">
+        <i data-lucide="message-circle" class="icon-sm"></i> Order via WhatsApp
+      </a>
+    </div>
+  </nav>
+
+  <!-- ═══ HERO ════════════════════════════════════════════════ -->
+  <section class="land-hero" aria-label="Product hero">
+
+    <!-- Left: product content -->
+    <div class="hero-content-side">
+      <div class="hero-eyebrow" id="hero-verified-badge">
+        <span class="hero-eyebrow-dot"></span>
+        Jami Verified · Kerala
+      </div>
+
+      <h1 class="hero-product-heading" id="hero-product-name">Loading…</h1>
+
+      <p class="hero-product-desc" id="hero-description"><!-- filled by landing-ui.js --></p>
+
+      <div class="hero-price-row">
+        <span class="price-currency">₹</span>
+        <span class="price-amount" id="hero-price-amount">—</span>
+        <span class="price-suffix" id="hero-price-per">per unit · handmade</span>
+      </div>
+
+      <div class="hero-cta-row">
+        <a id="hero-wa-btn" class="wa-order-btn" href="#" target="_blank" rel="noopener">
+          <i data-lucide="message-circle" class="icon-md"></i>
+          Order via WhatsApp
+        </a>
+        <span class="hero-reply-note">
+          <i data-lucide="clock" class="icon-xs"></i> Replies within 2 hours
+        </span>
+      </div>
+    </div>
+
+    <!-- Right: product image -->
+    <div class="hero-image-side" id="hero-image-side">
+      <!-- Filled by landing-ui.js -->
+    </div>
+  </section>
+
+  <!-- ═══ TRUST STRIP ══════════════════════════════════════ -->
+  <div class="trust-strip" id="trust-strip" role="complementary">
+    <div class="trust-item">
+      <div class="trust-icon"><i data-lucide="cpu" class="icon-sm"></i></div>
+      <span>Jami AI Validated</span>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon"><i data-lucide="users" class="icon-sm"></i></div>
+      <span>Kudumbashree Backed</span>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon"><i data-lucide="leaf" class="icon-sm"></i></div>
+      <span>100% Handmade</span>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon"><i data-lucide="map-pin" class="icon-sm"></i></div>
+      <span>Kerala Made</span>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon"><i data-lucide="message-circle" class="icon-sm"></i></div>
+      <span>WhatsApp Support</span>
+    </div>
+  </div>
+
+  <!-- ═══ STORY SECTION ══════════════════════════════════════ -->
+  <section class="story-section" aria-label="Product story">
+
+    <!-- Left: story text -->
+    <div>
+      <div class="story-eyebrow">The Story Behind</div>
+      <h2>Why <span id="story-product-name" class="text-gold">This Product</span> Is Special</h2>
+      <p id="story-description"><!-- filled by landing-ui.js --></p>
+      <p style="font-size:var(--text-sm);color:var(--text-muted);">
+        Every product on Homemade CEO is financially validated by Jami — our AI business
+        partner — to ensure fair pricing, real profitability, and quality you can trust.
+      </p>
+    </div>
+
+    <!-- Right: maker card -->
+    <div>
+      <div class="maker-card">
+        <div class="maker-card-top">
+          <div class="maker-avatar-row">
+            <div class="maker-avatar" id="maker-avatar">?</div>
+            <div>
+              <div class="maker-name" id="story-maker-name">—</div>
+              <div class="maker-location">
+                <i data-lucide="map-pin" style="width:11px;height:11px;"></i>
+                <span id="story-maker-location">Kerala</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="maker-card-body">
+          <p class="maker-bio" id="story-maker-bio"><!-- filled by landing-ui.js --></p>
+          <div class="maker-tags" id="maker-tags">
+            <span class="maker-tag">
+              <i data-lucide="home" style="width:10px;height:10px;"></i> Home Entrepreneur
+            </span>
+            <span class="maker-tag">
+              <i data-lucide="leaf" style="width:10px;height:10px;"></i> Natural Ingredients
+            </span>
+            <span class="maker-tag">
+              <i data-lucide="map-pin" style="width:10px;height:10px;"></i> Kerala
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CTA SECTION ════════════════════════════════════════ -->
+  <section class="cta-section" aria-label="Order call to action">
+    <div class="cta-inner">
+      <h2>Ready to Order <span id="cta-product-name" class="text-gold">This Product</span>?</h2>
+      <p class="cta-sub">Send a WhatsApp message directly to the maker — fast, easy, personal.</p>
+      <a id="cta-wa-btn" class="wa-order-btn" href="#" target="_blank" rel="noopener">
+        <i data-lucide="message-circle" class="icon-md"></i>
+        Order via WhatsApp Now
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ══════════════════════════════════════════════ -->
+  <footer class="landing-footer">
+    <a href="dashboard.html" style="font-size:var(--text-xs);color:rgba(255,255,255,0.35);text-decoration:none;display:flex;align-items:center;gap:5px;">
+      <i data-lucide="arrow-left" style="width:12px;height:12px;"></i> Back to Dashboard
+    </a>
+    <span class="footer-brand">Homemade CEO</span>
+    <span class="footer-text">Backed by Kudumbashree · LSGD Kerala · Prototype 2026</span>
+  </footer>
+
+  <!-- Share FAB -->
+  <button class="share-fab" id="share-btn" title="Share this listing" aria-label="Share product listing">
+    <i data-lucide="share-2" class="icon-md"></i>
+  </button>
+
+  <div class="toast-container"></div>
+
+  <script src="js/margin.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/landing-ui.js"></script>
+  <script src="js/easter-eggs.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      // Sync nav WA button after landing-ui populates hero
+      setTimeout(() => {
+        const nav = document.getElementById('nav-wa-btn');
+        const hero = document.getElementById('hero-wa-btn');
+        const cta = document.getElementById('cta-wa-btn');
+        if (nav && hero) { nav.href = hero.href; }
+        if (cta && hero) { cta.href = hero.href; }
+      }, 300);
+    });
+  </script>
+</body>
+</html>
