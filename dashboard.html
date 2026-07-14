@@ -29,8 +29,9 @@
       <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(27,107,122,0.12);border:1px solid rgba(27,107,122,0.3);color:var(--teal-light,#6ECBD8);font-size:10px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:9999px">
         <i data-lucide="layout-dashboard" style="width:10px;height:10px"></i> LSGD OFFICER
       </span>
+      <button id="lang-toggle" style="background:transparent;border:none;cursor:pointer;color:var(--gold);font-weight:700;font-size:12px;margin-right:12px;">English</button>
       <a href="chat.html" class="dash-new-btn">
-        <i data-lucide="plus" class="icon-xs"></i> New Seller Demo
+        <i data-lucide="plus" class="icon-xs"></i> <span data-i18n="nav-chat">New Seller Demo</span>
       </a>
     </div>
   </nav>
@@ -237,6 +238,7 @@
   <script src="js/store.js"></script>
   <script src="js/dashboard-ui.js"></script>
   <script src="js/easter-eggs.js"></script>
+  <script src="js/i18n.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();

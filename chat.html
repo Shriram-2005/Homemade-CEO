@@ -10,6 +10,14 @@
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body class="chat-page">
+  <script>
+    window.addEventListener('error', function(e) {
+      document.body.insertAdjacentHTML('afterbegin', '<div style="color:red;background:yellow;padding:10px;z-index:9999;position:fixed;top:0;left:0;">' + e.message + ' at ' + e.filename + ':' + e.lineno + '</div>');
+    });
+    window.addEventListener('unhandledrejection', function(e) {
+      document.body.insertAdjacentHTML('afterbegin', '<div style="color:red;background:yellow;padding:10px;z-index:9999;position:fixed;top:50px;left:0;">Promise Rejection: ' + e.reason + '</div>');
+    });
+  </script>
 
   <!-- ═══ TOP NAV BAR ══════════════════════════════════════ -->
   <header class="chat-topbar">
@@ -31,158 +39,140 @@
       </div>
     </div>
 
-    <div class="topbar-right">
-      <!-- Language toggle -->
-      <label class="lang-toggle" title="Toggle Malayalam">
-        <span>EN</span>
-        <input type="checkbox" id="lang-toggle">
-        <div class="toggle-track"></div>
-        <span>ML</span>
-      </label>
+    <div class="topbar-right" style="display:flex; align-items:center; gap:12px;">
+      <!-- Chat with Human -->
+      <button class="btn btn-gold" style="padding:6px 16px; font-size:14px; border-radius:8px;" data-i18n="btn-human">Talk to a Human</button>
 
-      <div class="topbar-divider"></div>
+      <!-- Role pill as Avatar -->
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; margin-left:8px;">
+        <div style="width:32px; height:32px; border-radius:50%; background:var(--slate-200); display:flex; align-items:center; justify-content:center; color:var(--slate-600);">
+          <i data-lucide="user" class="icon-sm"></i>
+        </div>
+        <span style="font-size:10px; font-weight:700; color:var(--slate-800); background:white; padding:2px 6px; border-radius:10px; margin-top:-6px; z-index:2; text-transform:uppercase;">SELLER</span>
+      </div>
+      
+      <!-- Settings & Display Options -->
+      <div style="position: relative;">
+        <button class="icon-btn" id="three-dot-btn" title="Options" aria-label="Open options menu" style="color:white;">
+          <i data-lucide="more-vertical" class="icon-md"></i>
+        </button>
+        <!-- Dropdown Menu -->
+        <div id="options-dropdown" class="options-dropdown" style="display: none;">
+          <div class="dropdown-section">
+            <div class="dropdown-title">Language / ഭാഷ</div>
+            <button class="dropdown-item" id="menu-lang-en">English</button>
+            <button class="dropdown-item" id="menu-lang-ml">മലയാളം (Malayalam)</button>
+          </div>
+          <div class="dropdown-section">
+            <div class="dropdown-title">Voice / ശബ്ദം</div>
+            <button class="dropdown-item" id="menu-voice-toggle">
+              <i data-lucide="volume-2" class="icon-sm" style="display:inline-block; vertical-align:middle; margin-right:6px;"></i> <span id="voice-toggle-text">Voice: ON</span>
+            </button>
+          </div>
+          <div class="dropdown-section">
+            <div class="dropdown-title">Text Size</div>
+            <button class="dropdown-item" id="menu-size-sm">Small</button>
+            <button class="dropdown-item" id="menu-size-mid">Mid</button>
+            <button class="dropdown-item" id="menu-size-md">Medium</button>
+            <button class="dropdown-item" id="menu-size-lg">Large</button>
+            <button class="dropdown-item" id="menu-size-xl">Extra Large</button>
+          </div>
+          <div class="dropdown-section" style="border-top: 1px solid var(--slate-800); padding-top: 8px;">
+            <button class="dropdown-item" id="menu-reset-chat" style="color: #ef4444; font-weight: 500;">
+              <i data-lucide="refresh-cw" class="icon-sm" style="display:inline-block; vertical-align:middle; margin-right:6px;"></i> Reset Chat
+            </button>
+          </div>
+        </div>
+      </div>
 
-      <!-- Settings -->
-      <button class="icon-btn" id="settings-btn" title="LLM Settings" aria-label="Open LLM settings">
-        <i data-lucide="settings-2" class="icon-sm"></i>
-      </button>
-
-      <!-- Role pill -->
-      <span class="mode-pill" style="background:rgba(200,134,10,0.1);border-color:rgba(200,134,10,0.25);color:var(--gold-pale)">
-        <i data-lucide="user" style="width:10px;height:10px"></i> SELLER
-      </span>
-
-      <!-- Mode badge -->
-      <span class="mode-pill" id="api-mode-badge">MOCK</span>
+      <!-- Mode badge (hidden in UI usually, keep for dev) -->
+      <span class="mode-pill" id="api-mode-badge" style="display:none;">MOCK</span>
     </div>
   </header>
 
-  <!-- ═══ BODY ══════════════════════════════════════════════ -->
-  <div class="chat-body">
+  <!-- ═══ BODY (VOICE-FORWARD REDESIGN) ══════════════════════════════════════════════ -->
+  <div class="chat-body new-layout">
+    
+    <!-- LEFT FLANK (Desktop Only) -->
+    <div class="flank left-flank" id="left-flank" aria-hidden="true">
+       <!-- AI generated illustrations will go here based on user input -->
+    </div>
 
-    <!-- ─── LEFT SIDEBAR ──────────────────────────────────── -->
-    <aside class="chat-sidebar" aria-label="Conversation context">
-
-      <!-- Jami Profile -->
-      <div class="sidebar-profile">
-        <div class="sidebar-avatar-wrap">
-          <img class="sidebar-avatar" src="assets/jami-avatar.png" alt="Jami"
-               onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 72 72%22><circle cx=%2236%22 cy=%2236%22 r=%2236%22 fill=%22%23C8860A%22/><text x=%2236%22 y=%2246%22 text-anchor=%22middle%22 font-size=%2228%22 fill=%22white%22 font-family=%22Georgia%22>J</text></svg>'">
-          <div class="sidebar-avatar-badge"></div>
-        </div>
-        <div class="sidebar-name">Jami</div>
-        <div class="sidebar-role">AI Business Partner</div>
-        <p class="sidebar-desc">Backed by Kudumbashree · LSGD Kerala<br>She helps you build, price, and launch your product — one conversation at a time.</p>
-      </div>
-
-      <!-- Journey Progress -->
-      <div class="sidebar-journey">
-        <div class="sidebar-section-label">Your Journey</div>
-        <div class="journey-steps">
-
-          <div class="journey-step active" id="jstep-onboarding">
-            <div class="step-indicator">1</div>
-            <div class="step-text">
-              <div class="step-title">Meet Jami</div>
-              <div class="step-sub">Name &amp; district</div>
-            </div>
+    <!-- CENTER COLUMN -->
+    <div class="chat-container">
+      
+      <!-- Visual Stepper -->
+      <div class="top-stepper" aria-label="Progress Tracker">
+        <div class="stepper-icons">
+          <div class="step-wrapper active" id="jstep-onboarding">
+            <div class="step-icon"><i data-lucide="user" class="icon-md"></i></div>
+            <div class="step-label">Profile</div>
           </div>
-
-          <div class="journey-step" id="jstep-intake">
-            <div class="step-indicator">2</div>
-            <div class="step-text">
-              <div class="step-title">Your Product</div>
-              <div class="step-sub">Name, story &amp; photo</div>
-            </div>
+          <div class="step-line"></div>
+          <div class="step-wrapper" id="jstep-intake">
+            <div class="step-icon"><i data-lucide="package" class="icon-md"></i></div>
+            <div class="step-label">Product</div>
           </div>
-
-          <div class="journey-step" id="jstep-costing">
-            <div class="step-indicator">3</div>
-            <div class="step-text">
-              <div class="step-title">Cost Check</div>
-              <div class="step-sub">Margin &amp; pricing</div>
-            </div>
+          <div class="step-line"></div>
+          <div class="step-wrapper" id="jstep-costing">
+            <div class="step-icon"><i data-lucide="indian-rupee" class="icon-md"></i></div>
+            <div class="step-label">Pricing</div>
           </div>
-
-          <div class="journey-step" id="jstep-validated">
-            <div class="step-indicator">
-              <i data-lucide="check" class="icon-xs"></i>
-            </div>
-            <div class="step-text">
-              <div class="step-title">Validated</div>
-              <div class="step-sub">Listing goes live</div>
-            </div>
+          <div class="step-line"></div>
+          <div class="step-wrapper" id="jstep-validated">
+            <div class="step-icon"><i data-lucide="check-circle-2" class="icon-md"></i></div>
+            <div class="step-label">Success</div>
           </div>
-
         </div>
       </div>
-
-      <!-- Tips -->
-      <div class="sidebar-tips">
-        <div class="sidebar-section-label">Tips for Demo</div>
-
-        <div class="tip-card">
-          <div class="tip-card-header">
-            <i data-lucide="user" class="icon-xs tip-card-icon"></i>
-            <span class="tip-card-title">Getting Started</span>
-          </div>
-          <p class="tip-card-text">Type your name to begin. Jami will guide you step by step through the full onboarding flow.</p>
-        </div>
-
-        <div class="tip-card">
-          <div class="tip-card-header">
-            <i data-lucide="package" class="icon-xs tip-card-icon"></i>
-            <span class="tip-card-title">Try These Products</span>
-          </div>
-          <p class="tip-card-text">"Nendran Banana Chips", "Coconut Oil", "Mango Pickle", "Handmade Soap" — all have great margin stories.</p>
-        </div>
-
-        <div class="tip-card">
-          <div class="tip-card-header">
-            <i data-lucide="zap" class="icon-xs tip-card-icon"></i>
-            <span class="tip-card-title">Easter Egg</span>
-          </div>
-          <p class="tip-card-text">Type "ente kerala" or "sadya" to discover a hidden Kerala surprise from Jami.</p>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div class="sidebar-footer">
-        <span class="sidebar-footer-text">PROTOTYPE · 2026</span>
-        <button class="sidebar-reset-btn" id="sidebar-reset-btn">
-          <i data-lucide="rotate-ccw" style="width:9px;height:9px;"></i> Reset
-        </button>
-      </div>
-
-    </aside>
-
-    <!-- ─── CHAT PANEL ─────────────────────────────────────── -->
-    <div class="chat-panel">
 
       <!-- Messages -->
-      <main class="messages-area" id="messages"
-            role="log" aria-label="Chat messages" aria-live="polite"></main>
+      <main class="messages-area" id="messages" role="log" aria-label="Chat messages" aria-live="polite"></main>
 
       <!-- Input -->
-      <footer class="chat-input-area">
-        <button class="attach-btn" id="attach-btn" title="Attach photo" aria-label="Attach product photo">
-          <i data-lucide="paperclip" class="icon-sm"></i>
-        </button>
-        <input type="file" id="file-input" accept="image/*" style="display:none" aria-label="Upload product photo">
+      <footer class="chat-input-area voice-first-input">
+        
+        <!-- Chunky Quick Replies -->
+        <div id="quick-replies-container" class="chunky-replies"></div>
 
-        <div class="msg-input-wrap">
-          <input type="text" id="message-input"
-                 placeholder="Type your reply to Jami…"
-                 autocomplete="off" spellcheck="true"
-                 aria-label="Type your message">
+        <div class="input-controls">
+          
+          <button class="attach-btn" id="attach-btn" title="Attach photo" aria-label="Attach product photo">
+            <i data-lucide="image" class="icon-xl"></i>
+          </button>
+          <input type="file" id="file-input" accept="image/*" style="display:none" aria-label="Upload product photo">
+
+          <!-- Massive Microphone -->
+          <button class="mic-btn" id="mic-btn" aria-label="Tap to speak">
+            <i data-lucide="mic" class="icon-xl"></i>
+            <span class="mic-label" data-i18n="tap-to-speak">Tap to Speak</span>
+          </button>
+
+          <!-- Standard Text Input (hidden by default) -->
+          <div class="msg-input-wrap hidden" id="keyboard-input-wrap">
+            <input type="text" id="message-input"
+                   placeholder="Type your reply to Jami…"
+                   data-i18n="chat-input-placeholder"
+                   autocomplete="off" spellcheck="true"
+                   aria-label="Type your message">
+            <button class="send-btn" id="send-btn" title="Send" aria-label="Send message">
+              <i data-lucide="send" class="icon-sm"></i>
+            </button>
+          </div>
+
+          <button class="keyboard-toggle-btn" id="keyboard-toggle-btn" title="Type instead" aria-label="Use keyboard">
+            <i data-lucide="keyboard" class="icon-xl"></i>
+          </button>
+
         </div>
-
-        <button class="send-btn" id="send-btn" title="Send" aria-label="Send message">
-          <i data-lucide="send" class="icon-sm"></i>
-        </button>
       </footer>
 
-    </div><!-- /chat-panel -->
+    </div><!-- /chat-container -->
+
+    <!-- RIGHT FLANK (Desktop Only) -->
+    <div class="flank right-flank" id="right-flank" aria-hidden="true">
+       <!-- AI generated illustrations will go here based on user input -->
+    </div>
 
   </div><!-- /chat-body -->
 
@@ -236,15 +226,16 @@
   <script src="js/jami.js"></script>
   <script src="js/chat-ui.js"></script>
   <script src="js/easter-eggs.js"></script>
+  <script src="js/i18n.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
 
-      // Sidebar reset button
       const resetBtn = document.getElementById('sidebar-reset-btn');
       if (resetBtn) {
         resetBtn.addEventListener('click', () => {
           if (confirm('Start a fresh conversation with Jami?')) {
+            Store.resetLiveSellers();
             location.reload();
           }
         });

@@ -700,8 +700,9 @@
       </a>
 
       <div class="nav-links">
+        <button id="lang-toggle" class="nav-link" style="background:transparent;border:none;cursor:pointer;color:var(--gold);font-weight:700;">English</button>
         <a href="chat.html" class="nav-link">
-          <i data-lucide="message-circle" class="icon-sm"></i> Chat with Jami
+          <i data-lucide="message-circle" class="icon-sm"></i> <span data-i18n="nav-chat">Chat with Jami</span>
         </a>
         <a href="dashboard.html" class="nav-link">
           <i data-lucide="layout-dashboard" class="icon-sm"></i> Dashboard
@@ -783,17 +784,8 @@
           LSGD Kerala &nbsp;·&nbsp; Kudumbashree Initiative &nbsp;·&nbsp; Prototype 2026
         </div>
 
-        <h1 class="hero-heading">
-          Kerala's Homemakers.<br>
-          <span class="accent">Meet Their CEO.</span>
-        </h1>
-
-        <p class="hero-body">
-          Rural women across Kerala have the skills and the recipes.
-          <strong>Homemade CEO</strong> gives them the business infrastructure —
-          an AI partner named <strong>Jami</strong> who validates their product's
-          profitability and builds their storefront. All via WhatsApp.
-        </p>
+        <h1 class="hero-heading" data-i18n="hero-title">Turn Your Home Skills Into a Business</h1>
+        <p class="hero-body" data-i18n="hero-sub">Homemade CEO helps rural homemakers in Kerala calculate margins, validate their products, and launch their micro-enterprises directly from their phones.</p>
 
         <div class="hero-backed" style="margin-bottom:40px">
           <span class="backed-label">Backed by</span>
@@ -816,9 +808,9 @@
               <div class="role-icon">
                 <i data-lucide="message-circle" class="icon-lg"></i>
               </div>
-              <span class="role-badge">Seller</span>
+              <span class="role-card-name" data-i18n="role-seller">I am a Seller</span>
+              <span class="role-badge">NEW</span>
             </div>
-            <div class="role-card-name">Homemaker Entrepreneur</div>
             <div class="role-card-desc">Chat with Jami on WhatsApp. Get your product validated and your storefront built — step by step.</div>
             <div class="role-card-features">
               <span><i data-lucide="check" class="icon-xs"></i> AI-guided onboarding</span>
@@ -1060,6 +1052,7 @@
   <script src="js/margin.js"></script>
   <script src="js/store.js"></script>
   <script src="js/easter-eggs.js"></script>
+  <script src="js/i18n.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();

@@ -183,7 +183,7 @@
           showToast(
             '🐘',
             'Thrissur Pooram!',
-            'നമ്മൾ നമുക്കായി — We for ourselves. Kerala's grandest festival, in your browser.',
+            'നമ്മൾ നമുക്കായി — We for ourselves. Kerala\'s grandest festival, in your browser.',
             '',
             6000
           );

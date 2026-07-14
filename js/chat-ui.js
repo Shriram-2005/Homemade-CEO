@@ -1,34 +1,64 @@
 /**
- * chat-ui.js â€” WhatsApp-style Chat Interface Controller
+ * chat-ui.js — Voice-Forward Assistant Redesign
  *
- * Handles all DOM interactions, message rendering, typing indicator,
- * file uploads, language toggle, and LLM settings modal.
- *
- * Dependencies (must be loaded first): margin.js, store.js, jami.js
+ * Handles DOM interactions, speech synthesis (TTS), speech recognition (STT),
+ * message rendering, file uploads, and settings modal.
  */
 
 const ChatUI = (() => {
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  //  STATE
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   let _inputDisabled = false;
+  let _synth = window.speechSynthesis;
+  let _recognition = window.SpeechRecognition || window.webkitSpeechRecognition ? new (window.SpeechRecognition || window.webkitSpeechRecognition)() : null;
+  let _ttsSpeed = 1.0;
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  //  DOM REFS
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Global Audio Unlocker to bypass strict browser autoplay policies for async TTS
+  let _audioUnlocked = false;
+  document.addEventListener('click', () => {
+    if (!_audioUnlocked) {
+      const unlockAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
+      unlockAudio.volume = 0;
+      unlockAudio.play().catch(()=>{});
+      _audioUnlocked = true;
+    }
+  }, { once: true });
+
+  // Warm up voices immediately so they are ready by the time Jami speaks
+  if (_synth) {
+    _synth.getVoices();
+    if (_synth.onvoiceschanged !== undefined) {
+      _synth.onvoiceschanged = () => _synth.getVoices();
+    }
+  }
+
+  // Initialize Speech Recognition if supported
+  if (_recognition) {
+    _recognition.continuous = false;
+    _recognition.interimResults = false;
+    _recognition.lang = 'en-IN'; // Will be updated dynamically based on language
+  }
+
+  // ─── DOM REFS ──────────────────────────────────────────────────────────
   const $ = id => document.getElementById(id);
   const msgArea    = () => $('messages');
   const msgInput   = () => $('message-input');
   const sendBtn    = () => $('send-btn');
   const attachBtn  = () => $('attach-btn');
   const fileInput  = () => $('file-input');
-  const langToggle = () => $('lang-toggle');
+  const threeDotBtn= () => $('three-dot-btn');
+  const optionsMenu= () => $('options-dropdown');
+  const micBtn     = () => $('mic-btn');
+  const kbToggle   = () => $('keyboard-toggle-btn');
+  const kbWrap     = () => $('keyboard-input-wrap');
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  //  INIT
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  function init() {
+  // ─── INIT ─────────────────────────────────────────────────────────────
+  async function init() {
     Store.init();
+    
+    // Wait for JAMI config/env to load before starting
+    if (typeof window.initializeJami === 'function') {
+      await window.initializeJami();
+    }
+    
     initSession();
 
     // Wire up events
@@ -38,26 +68,132 @@ const ChatUI = (() => {
     });
     attachBtn().addEventListener('click', () => fileInput().click());
     fileInput().addEventListener('change', handleFileSelect);
-    langToggle().addEventListener('change', () => {
-      JAMI_CONFIG.malayalam = langToggle().checked;
-      const labels = document.querySelectorAll('.lang-label');
-      labels.forEach((l, i) => l.classList.toggle('lang-label-active', i === (JAMI_CONFIG.malayalam ? 1 : 0)));
-    });
-    $('settings-btn').addEventListener('click', () => $('settings-modal').classList.remove('hidden'));
-    $('modal-close-btn').addEventListener('click', () => $('settings-modal').classList.add('hidden'));
-    $('modal-save-btn').addEventListener('click', saveSettings);
-    $('settings-modal').addEventListener('click', e => {
-      if (e.target === $('settings-modal')) $('settings-modal').classList.add('hidden');
+    
+    // Keyboard / Mic toggle
+    kbToggle().addEventListener('click', () => {
+      kbWrap().classList.toggle('hidden');
+      if (!kbWrap().classList.contains('hidden')) {
+        msgInput().focus();
+      }
     });
 
-    // Show date header
-    addDateSeparator();
+    // 3-Dot Menu Toggle
+    threeDotBtn().addEventListener('click', (e) => {
+      e.stopPropagation();
+      const menu = optionsMenu();
+      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    });
+    document.addEventListener('click', () => {
+      optionsMenu().style.display = 'none';
+    });
 
-    // Start conversation
-    _startConversation();
+    // Reset Chat Button
+    const menuReset = $('menu-reset-chat');
+    if (menuReset) {
+      menuReset.addEventListener('click', () => {
+        if (confirm('Are you sure you want to start a fresh conversation?')) {
+          Store.resetLiveSellers();
+          location.reload();
+        }
+      });
+    }
+    
+    // Language options
+    $('menu-lang-en').addEventListener('click', () => { JAMI_CONFIG.malayalam = false; alert("Language set to English"); });
+    $('menu-lang-ml').addEventListener('click', () => { JAMI_CONFIG.malayalam = true; alert("ഭാഷ മലയാളത്തിലേക്ക് മാറ്റി"); });
 
-    // Init journey bar
-    _updateJourneyBar('onboarding');
+    // Text Size options
+    const sizes = ['sm', 'mid', 'md', 'lg', 'xl'];
+    sizes.forEach(sz => {
+      $(`menu-size-${sz}`).addEventListener('click', () => {
+        document.body.className = document.body.className.replace(/text-size-\w+/g, '');
+        document.body.classList.add(`text-size-${sz}`);
+      });
+    });
+
+    // Voice Toggle
+    const voiceToggleBtn = $('menu-voice-toggle');
+    if (voiceToggleBtn) {
+      voiceToggleBtn.addEventListener('click', () => {
+        if (JAMI_CONFIG.voiceOn) {
+          JAMI_CONFIG.voiceOn = false;
+          $('voice-toggle-text').textContent = 'Voice: OFF';
+          _synth.cancel();
+          document.querySelectorAll('.tts-btn').forEach(b => b.classList.remove('playing'));
+        } else {
+          JAMI_CONFIG.voiceOn = true;
+          $('voice-toggle-text').textContent = 'Voice: ON';
+        }
+      });
+    }
+
+    lucide.createIcons();
+
+    // Voice Recording
+    if (_recognition) {
+      micBtn().addEventListener('click', toggleRecording);
+      _recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        msgInput().value = transcript;
+        handleSend();
+      };
+      _recognition.onend = () => {
+        micBtn().classList.remove('listening');
+      };
+      _recognition.onerror = (e) => {
+        console.error('Speech recognition error', e.error);
+        micBtn().classList.remove('listening');
+        showToast('Microphone error: ' + e.error);
+      };
+    } else {
+      micBtn().addEventListener('click', () => showToast('Speech recognition not supported in this browser.'));
+    }
+    const settingsBtn = $('settings-btn');
+    if (settingsBtn) {
+      settingsBtn.addEventListener('click', () => $('settings-modal').classList.remove('hidden'));
+      $('modal-close-btn').addEventListener('click', () => $('settings-modal').classList.add('hidden'));
+      $('modal-save-btn').addEventListener('click', saveSettings);
+      $('settings-modal').addEventListener('click', e => {
+        if (e.target === $('settings-modal')) $('settings-modal').classList.add('hidden');
+      });
+    }
+    // Resume or Start conversation
+    const session = getSession();
+    if (session.history && session.history.length > 0) {
+      session.history.forEach(msg => {
+        const text = msg.content || msg.text || '';
+        if (msg.role === 'assistant' || msg.role === 'jami') {
+          addJamiMessage(text, msg.special, false); // false to not autoplay
+        } else {
+          addUserMessage(text);
+        }
+      });
+      scrollToBottom();
+      _updateJourneyBar(session.state);
+      
+      // Restore quick replies for the current state if any
+      if (typeof window.getQuickReplies === 'function') {
+        showQuickReplies(window.getQuickReplies(session.state));
+      }
+    } else {
+      _startConversation();
+      _updateJourneyBar('onboarding');
+    }
+  }
+
+  function toggleRecording() {
+    if (micBtn().classList.contains('listening')) {
+      _recognition.stop();
+      micBtn().classList.remove('listening');
+    } else {
+      _recognition.lang = (window.JAMI_CONFIG && window.JAMI_CONFIG.malayalam) ? 'ml-IN' : 'en-IN';
+      try {
+        _recognition.start();
+        micBtn().classList.add('listening');
+      } catch (e) {
+        console.error(e);
+      }
+    }
   }
 
   async function _startConversation() {
@@ -68,13 +204,11 @@ const ChatUI = (() => {
 
     const response = await getOpeningMessage();
     addJamiMessage(response.text, response.special);
+    showQuickReplies(response.quickReplies);
     setInputDisabled(false);
-    msgInput().focus();
   }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  //  MESSAGE HANDLERS
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── MESSAGE HANDLERS ─────────────────────────────────────────────────
   async function handleSend() {
     if (_inputDisabled) return;
     const text = msgInput().value.trim();
@@ -88,24 +222,25 @@ const ChatUI = (() => {
 
     await delay(250);
     showTypingIndicator();
-    await delay(900 + Math.random() * 900); // 0.9â€“1.8s thinking time
+    await delay(900 + Math.random() * 900);
     removeTypingIndicator();
 
     const response = await processUserMessage(text);
     addJamiMessage(response.text, response.special);
+    showQuickReplies(response.quickReplies);
     scrollToBottom();
     _updateJourneyBar(response.state);
 
     if (response.state !== STATE.VALIDATED) {
       setInputDisabled(false);
-      msgInput().focus();
+      // Removed auto-focus so mobile keyboard doesn't pop up over voice UI
     }
   }
 
   async function handleFileSelect(e) {
     const file = e.target.files[0];
     if (!file) return;
-    e.target.value = '';   // allow re-selecting same file
+    e.target.value = '';
 
     setInputDisabled(true);
     const reader = new FileReader();
@@ -122,41 +257,92 @@ const ChatUI = (() => {
 
       const response = await processPhotoUpload(base64);
       addJamiMessage(response.text, response.special);
+      showQuickReplies(response.quickReplies);
       scrollToBottom();
 
       setInputDisabled(false);
-      msgInput().focus();
     };
 
     reader.readAsDataURL(file);
   }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  //  RENDER: JAMI MESSAGE
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  function addJamiMessage(text, special = null) {
+  // ─── RENDER: JAMI MESSAGE ─────────────────────────────────────────────
+  function addJamiMessage(text, special = null, autoPlay = true) {
     const time = _formatTime(new Date());
     const el = document.createElement('div');
     el.className = 'message jami';
 
-    const avatarSrc = 'assets/jami-avatar.png';
     const specialHtml = special ? _renderSpecial(special) : '';
+    
+    // Auto-play TTS
+    const isMl = window.JAMI_CONFIG && window.JAMI_CONFIG.malayalam;
+    const langCode = isMl ? 'ml-IN' : 'en-IN';
+    if (autoPlay && window.JAMI_CONFIG && window.JAMI_CONFIG.voiceOn) {
+      playTTS(text, langCode, el);
+    }
 
     el.innerHTML = `
-      <img class="msg-avatar" src="${avatarSrc}" alt="Jami"
-           onerror="this.style.display='none'">
-      <div class="msg-content">
-        <div class="bubble">
-          <p class="bubble-text">${_escapeHtml(text).replace(/\n/g, '<br>')}</p>
-          <div class="bubble-meta">
-            <span class="bubble-time">${time}</span>
-          </div>
+      <div style="display:flex; gap:12px; max-width: 85%;">
+        <div class="tts-container" style="display:flex; flex-direction:column; align-items:center; width:40px;">
+          <button class="tts-btn" aria-label="Play audio">
+            <i data-lucide="play" class="icon-sm tts-icon"></i>
+          </button>
+          <button class="tts-speed-btn" style="font-size:12px; font-weight:bold; margin-top:4px; padding:2px 6px; border-radius:4px; border:none; background:var(--slate-100); cursor:pointer; color:var(--slate-700);">1x</button>
         </div>
-        ${specialHtml}
+        <div style="flex:1">
+          <div class="bubble bubble-jami">
+            <p class="bubble-text">${_escapeHtml(text).replace(/\n/g, '<br>')}</p>
+          </div>
+          ${specialHtml}
+        </div>
       </div>
     `;
 
     msgArea().appendChild(el);
+    lucide.createIcons({ root: el });
+
+    // Wire TTS button
+    const ttsBtn = el.querySelector('.tts-btn');
+    const ttsIcon = el.querySelector('.tts-icon');
+    const speedBtn = el.querySelector('.tts-speed-btn');
+    
+    // Set initial speed text
+    speedBtn.textContent = _ttsSpeed + 'x';
+    
+    speedBtn.addEventListener('click', () => {
+      if (_ttsSpeed === 1.0) _ttsSpeed = 1.5;
+      else if (_ttsSpeed === 1.5) _ttsSpeed = 0.5;
+      else _ttsSpeed = 1.0;
+      
+      // Update ALL speed buttons
+      document.querySelectorAll('.tts-speed-btn').forEach(btn => btn.textContent = _ttsSpeed + 'x');
+      
+      if (_synth.speaking) {
+         window._speedChangeRequested = true;
+         _synth.cancel(); 
+         setTimeout(() => {
+           playTTS(text, langCode, el, window._activeBoundaryIndex || 0);
+         }, 100);
+      }
+    });
+
+    ttsBtn.addEventListener('click', () => {
+      if (_synth.speaking) {
+        window._speedChangeRequested = false;
+        _synth.cancel();
+        document.querySelectorAll('.tts-btn').forEach(b => {
+          b.classList.remove('playing');
+          const i = b.querySelector('.tts-icon');
+          if(i) {
+            i.setAttribute('data-lucide', 'play');
+            lucide.createIcons({ root: b });
+          }
+        });
+      } else {
+        window._speedChangeRequested = false;
+        playTTS(text, langCode, el);
+      }
+    });
 
     // Wire special card buttons
     if (special?.type === 'photo_upload') {
@@ -180,64 +366,148 @@ const ChatUI = (() => {
     scrollToBottom();
   }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  //  RENDER: USER MESSAGE
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function playTTS(text, langCode, messageContainer, startIndex = 0) {
+    // Only cancel if this is a fresh play, not a speed change resumption
+    if (!window._speedChangeRequested) {
+      if (window._currentAudio) {
+        window._currentAudio.pause();
+        window._currentAudio.currentTime = 0;
+      }
+      if (_synth) _synth.cancel();
+      window._activeBoundaryIndex = 0;
+    }
+    
+    // Reset all icons to play
+    document.querySelectorAll('.tts-btn').forEach(b => {
+      b.classList.remove('playing');
+      const i = b.querySelector('.tts-icon');
+      if (i) {
+        i.setAttribute('data-lucide', 'play');
+        lucide.createIcons({ root: b });
+      }
+    });
+
+    const playUtterance = (segmentText, segmentLang, startIdx) => {
+      return new Promise((resolve) => {
+        const strippedFullText = segmentText.replace(/<[^>]+>/g, '');
+        const textToPlay = strippedFullText.substring(startIdx || 0);
+        if (!textToPlay.trim()) return resolve();
+        
+        const tl = segmentLang.includes('ml') ? 'ml' : 'en';
+        // Use Google Translate TTS for guaranteed high-quality female pronunciation
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${tl}&q=${encodeURIComponent(textToPlay)}`;
+        
+        const audio = new Audio(url);
+        audio.playbackRate = _ttsSpeed;
+        window._currentAudio = audio;
+        
+        audio.onended = resolve;
+        audio.onerror = () => {
+          if (!window._speedChangeRequested) resolve();
+        };
+        
+        audio.play().catch(e => {
+          console.error("Audio play failed:", e);
+          resolve();
+        });
+      });
+    };
+
+    const runTTS = async () => {
+      const btn = messageContainer ? messageContainer.querySelector('.tts-btn') : null;
+      if (btn) {
+        btn.classList.add('playing');
+        const icon = btn.querySelector('.tts-icon');
+        if (icon) {
+          icon.setAttribute('data-lucide', 'pause');
+          lucide.createIcons({ root: btn });
+        }
+      }
+
+      if (text.includes('/') && text.includes('ദയവായി')) {
+        const parts = text.split('/');
+        // If startIndex is beyond part 1, we just play part 2
+        const p1 = parts[0].trim();
+        const p2 = parts[1].trim();
+        if (startIndex < p1.length) {
+           await playUtterance(p1, 'en-IN', startIndex);
+           if (!window._speedChangeRequested) {
+             window._activeBoundaryIndex = p1.length + 3; // roughly past the '/'
+             await playUtterance(p2, 'ml-IN', 0);
+           }
+        } else {
+           const adjustedStart = Math.max(0, startIndex - p1.length - 3);
+           await playUtterance(p2, 'ml-IN', adjustedStart);
+        }
+      } else {
+        await playUtterance(text, langCode, startIndex);
+      }
+
+      if (btn && !window._speedChangeRequested) {
+        btn.classList.remove('playing');
+        const icon = btn.querySelector('.tts-icon');
+        if (icon) {
+          icon.setAttribute('data-lucide', 'play');
+          lucide.createIcons({ root: btn });
+        }
+      }
+    };
+
+    runTTS();
+  }
+
+  // ─── RENDER: USER MESSAGE ─────────────────────────────────────────────
   function addUserMessage(text) {
     const time = _formatTime(new Date());
     const el = document.createElement('div');
     el.className = 'message user';
     el.innerHTML = `
-      <div class="bubble">
+      <div class="bubble bubble-user">
         <p class="bubble-text">${_escapeHtml(text)}</p>
-        <div class="bubble-meta">
-          <span class="bubble-time">${time}</span>
-          <span class="read-ticks">âœ“âœ“</span>
-        </div>
       </div>
     `;
     msgArea().appendChild(el);
   }
 
   function addUserPhotoMessage(src) {
-    const time = _formatTime(new Date());
     const el = document.createElement('div');
     el.className = 'message user';
     el.innerHTML = `
-      <div class="bubble photo-bubble">
+      <div class="bubble bubble-user photo-bubble">
         <img src="${src}" alt="Product photo" class="chat-photo">
-        <div class="bubble-meta">
-          <span class="bubble-time">${time}</span>
-          <span class="read-ticks">âœ“âœ“</span>
-        </div>
       </div>
     `;
     msgArea().appendChild(el);
   }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  //  RENDER: SPECIAL CARDS
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── RENDER: SPECIAL CARDS ────────────────────────────────────────────
   function _renderSpecial(special) {
     switch (special.type) {
       case 'photo_upload':
         return `
-          <div class="special-card upload-card">
-            <div class="upload-card-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+          <div class="receipt-card" style="cursor:pointer;" onclick="document.getElementById('file-input').click()">
+            <div class="receipt-icon"><i data-lucide="camera" class="icon-lg"></i></div>
+            <div>
+              <div style="font-weight:700; color:var(--navy); font-size:1.1rem;">Upload Photo</div>
+              <div style="font-size:0.9rem; color:var(--slate-500)">Tap here to open camera</div>
             </div>
-            <p>Share a photo of your product so customers can see what you're selling</p>
-            <button class="photo-upload-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Upload Photo
-            </button>
+          </div>`;
+
+      case 'receipt_card':
+        return `
+          <div class="receipt-card">
+            <div class="receipt-icon"><i data-lucide="${special.icon || 'indian-rupee'}" class="icon-lg"></i></div>
+            <div>
+              <div style="font-size:0.9rem; color:var(--slate-500); text-transform:uppercase; letter-spacing:1px; font-weight:600">${special.label}</div>
+              <div class="receipt-value">${special.value}</div>
+            </div>
           </div>`;
 
       case 'margin_card':
         return _renderMarginCard(special.margin);
 
-      case 'validated_card':
-        return _renderValidatedCard(special.margin);
+      case 'product_video_card':
+        return _renderProductVideoCard(special);
 
       default:
         return '';
@@ -246,77 +516,72 @@ const ChatUI = (() => {
 
   function _renderMarginCard(m) {
     const cls = m.pass ? 'pass' : 'fail';
-    const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
-    const warnIcon  = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>`;
     const rupee = '&#8377;';
     const breakdownRows = m.breakdown.map(item => `
-      <div class="cost-row">
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:1.1rem; color:var(--slate-600)">
         <span>${item.label}</span>
         <span>${rupee}${item.amount.toFixed(0)}</span>
       </div>`).join('');
 
     return `
-      <div class="special-card margin-card ${cls}">
-        <div class="margin-hd">
-          <span class="margin-hd-label">Cost Breakdown</span>
-          <span class="margin-badge ${cls}">${m.pass ? checkIcon + ' Profitable' : warnIcon + ' Below Target'}</span>
+      <div style="background:white; border:2px solid var(--gold); border-radius:16px; padding:20px; margin-top:10px; box-shadow: 0 4px 15px rgba(200,134,10,0.1)">
+        <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--slate-200); padding-bottom:12px; margin-bottom:12px;">
+          <strong style="color:var(--navy); font-size:1.2rem;">Cost Breakdown</strong>
         </div>
-        <div class="cost-breakdown">
-          ${breakdownRows}
-          <div class="cost-row total-row">
-            <span>Total Cost</span>
-            <span>${rupee}${m.totalCost.toFixed(0)}</span>
-          </div>
-          <div class="cost-row selling-row">
-            <span>Selling Price</span>
-            <span>${rupee}${m.sellingPrice.toFixed(0)}</span>
-          </div>
-        </div>
-        <div class="margin-result">
-          <span class="margin-pct ${cls}">${m.marginPercent.toFixed(1)}%</span>
-          ${!m.pass ? `<span class="target-hint">Need ${rupee}${m.targetPrice}+ to qualify</span>` : ''}
+        ${breakdownRows}
+        <div style="display:flex; justify-content:space-between; margin-top:16px; font-weight:700; font-size:1.2rem; color:var(--navy)">
+          <span>Total Cost</span>
+          <span>${rupee}${m.totalCost.toFixed(0)}</span>
         </div>
       </div>`;
   }
 
-  function _renderValidatedCard(m) {
-    // Nilavilakku (Kerala lamp) SVG icon â€” symbol of validation and light
-    const lampSVG = `<svg class="lamp-icon" width="28" height="28" viewBox="0 0 24 36" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-      <ellipse cx="12" cy="34" rx="7" ry="2" opacity="0.4"/>
-      <rect x="11" y="16" width="2" height="18" rx="1"/>
-      <path d="M6,16 Q12,10 18,16 Q16,21 12,21 Q8,21 6,16 Z"/>
-      <path d="M12,10 Q10,5 12,1 Q14,5 12,10 Z" fill="#C8860A"/>
-      <circle cx="12" cy="6" r="3" fill="rgba(200,134,10,0.35)"/>
-    </svg>`;
-    const arrowSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+  function _renderProductVideoCard(special) {
+    const photoUrl = special.photoUrl || '';
+    
     return `
-      <div class="special-card validated-card">
-        <div class="validated-lamp">
-          ${lampSVG}
-          <div>
-            <div class="validated-title">Product Validated!</div>
-            <div class="validated-sub">${m.marginPercent.toFixed(1)}% margin \u00b7 Kudumbashree Approved</div>
-          </div>
+      <div class="product-video-card">
+        <div class="product-video-container">
+          <img src="${photoUrl}" class="product-video-img" alt="AI Edited Product">
         </div>
-        <button class="view-listing-btn">${arrowSVG} View Your Listing</button>
-      </div>`;
+        <div class="video-caption">
+          <i data-lucide="sparkles" class="icon-sm" style="color:var(--gold)"></i> 
+          <span data-i18n="ai-enhancing">AI is enhancing your product photo...</span>
+        </div>
+        
+        <div class="receipt-card" style="background:var(--success-bg); border-color:var(--success); flex-direction:column; align-items:flex-start; margin-top:16px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="receipt-icon" style="background:var(--success); color:white;"><i data-lucide="check-circle-2" class="icon-lg"></i></div>
+            <div>
+              <div style="font-weight:700; color:var(--success); font-size:1.3rem;">Product Validated!</div>
+              <div style="color:var(--success); font-size:1rem;">Kudumbashree Approved</div>
+            </div>
+          </div>
+          <button class="view-listing-btn" onclick="window.location.href='landing.html?seller=${special.sellerId}'">
+            <i data-lucide="external-link" class="icon-sm"></i> View Your Storefront
+          </button>
+        </div>
+      </div>
+    `;
   }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  //  TYPING INDICATOR
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── TYPING INDICATOR ────────────────────────────────────────────────
   function showTypingIndicator() {
     if (document.getElementById('typing-indicator')) return;
     const el = document.createElement('div');
     el.className = 'message jami';
     el.id = 'typing-indicator';
     el.innerHTML = `
-      <img class="msg-avatar" src="assets/jami-avatar.png" alt="Jami"
-           onerror="this.style.display='none'">
-      <div class="bubble typing-bubble">
-        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <div style="display:flex; gap:12px; max-width: 85%;">
+        <div class="tts-btn" style="opacity:0.3"><i data-lucide="volume-2" class="icon-sm"></i></div>
+        <div class="bubble bubble-jami" style="display:flex; align-items:center; height:48px;">
+          <span class="dot" style="animation: typing 1.4s infinite 0s both; width:6px; height:6px; background:var(--gold); border-radius:50%; margin:0 3px;"></span>
+          <span class="dot" style="animation: typing 1.4s infinite 0.2s both; width:6px; height:6px; background:var(--gold); border-radius:50%; margin:0 3px;"></span>
+          <span class="dot" style="animation: typing 1.4s infinite 0.4s both; width:6px; height:6px; background:var(--gold); border-radius:50%; margin:0 3px;"></span>
+        </div>
       </div>`;
     msgArea().appendChild(el);
+    lucide.createIcons({ root: el });
     scrollToBottom();
   }
 
@@ -325,20 +590,7 @@ const ChatUI = (() => {
     if (el) el.remove();
   }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  //  DATE SEPARATOR
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  function addDateSeparator() {
-    const label = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
-    const el = document.createElement('div');
-    el.className = 'date-separator';
-    el.innerHTML = `<span>${label}</span>`;
-    msgArea().appendChild(el);
-  }
-
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  //  SETTINGS MODAL
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── SETTINGS MODAL ──────────────────────────────────────────────────
   function saveSettings() {
     const apiKey   = $('modal-api-key').value.trim();
     const provider = $('modal-provider').value;
@@ -351,25 +603,33 @@ const ChatUI = (() => {
       JAMI_CONFIG.mock     = false;
       $('api-mode-badge').textContent = 'LIVE';
       $('api-mode-badge').className = 'mode-pill live';
-      showToast('API connected â€” Jami will use real LLM responses');
+      showToast('API connected — Jami will use real LLM responses');
     } else {
       JAMI_CONFIG.mock = true;
       $('api-mode-badge').textContent = 'MOCK';
       $('api-mode-badge').className = 'mode-pill';
       showToast('Using mock responses (no API key set)');
     }
-
     $('settings-modal').classList.add('hidden');
   }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  //  UTILITIES
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── UTILITIES ───────────────────────────────────────────────────────
   function setInputDisabled(disabled) {
-    _inputDisabled     = disabled;
+    _inputDisabled = disabled;
     msgInput().disabled = disabled;
     sendBtn().disabled  = disabled;
-    msgInput().placeholder = disabled ? 'Jami is thinking…' : 'Type your reply to Jami…';
+    micBtn().disabled = disabled;
+    micBtn().style.opacity = disabled ? '0.5' : '1';
+    
+    const isMl = window.JAMI_CONFIG && window.JAMI_CONFIG.malayalam;
+    const label = $('mic-btn').querySelector('.mic-label');
+    if (disabled) {
+      msgInput().placeholder = isMl ? 'ജാമി ചിന്തിക്കുന്നു...' : 'Jami is thinking…';
+      if(label) label.textContent = isMl ? 'കാത്തിരിക്കുക...' : 'Wait...';
+    } else {
+      msgInput().placeholder = isMl ? 'നിങ്ങളുടെ മറുപടി ടൈപ്പ് ചെയ്യുക...' : 'Type your reply to Jami…';
+      if(label) label.textContent = isMl ? 'സംസാരിക്കാൻ ടാപ്പ് ചെയ്യുക' : 'Tap to Speak';
+    }
   }
 
   function scrollToBottom() {
@@ -399,12 +659,35 @@ const ChatUI = (() => {
     setTimeout(() => t.remove(), duration);
   }
 
+  function showQuickReplies(options) {
+    const container = document.getElementById('quick-replies-container');
+    if (!container) return;
+    container.innerHTML = '';
+    if (!options || options.length === 0) {
+      container.style.display = 'none';
+      return;
+    }
+    container.style.display = 'flex';
+    options.forEach(opt => {
+      // Chunk options: opt might be an object { label, icon } or just string
+      const label = opt.label || opt;
+      const iconName = opt.icon || 'message-square';
+
+      const btn = document.createElement('div');
+      btn.className = 'quick-reply-chunky';
+      btn.innerHTML = `<i data-lucide="${iconName}" class="icon-lg"></i><span>${label}</span>`;
+      btn.onclick = () => {
+        msgInput().value = label;
+        handleSend();
+      };
+      container.appendChild(btn);
+    });
+    lucide.createIcons({ root: container });
+  }
+
   function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  //  JOURNEY BAR â€” updates progress steps
-  // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // Maps jami.js STATE constants â†’ journey bar step IDs
+  // ─── JOURNEY BAR (Top Stepper) ──────────────────────────────────────
   const STATE_TO_STEP = {
     'AWAITING_NAME':          'onboarding',
     'AWAITING_DISTRICT':      'onboarding',
@@ -417,6 +700,7 @@ const ChatUI = (() => {
     'AWAITING_LABOR_RATE':    'costing',
     'AWAITING_OVERHEAD':      'costing',
     'AWAITING_WASTAGE':       'costing',
+    'AWAITING_UNITS_PER_BATCH': 'costing',
     'AWAITING_PRICE':         'costing',
     'COACHING':               'costing',
     'AWAITING_NEW_PRICE':     'costing',
@@ -424,30 +708,32 @@ const ChatUI = (() => {
   };
   const STEP_ORDER = ['onboarding','intake','costing','validated'];
 
-  const STEP_NUMBERS = { onboarding: '1', intake: '2', costing: '3', validated: '' };
-  const CHECK_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-
   function _updateJourneyBar(state) {
     const active = STATE_TO_STEP[state] || 'onboarding';
     const activeIdx = STEP_ORDER.indexOf(active);
-    STEP_ORDER.forEach((step, idx) => {
-      const el = document.getElementById('jstep-' + step);
-      if (!el) return;
-      el.classList.remove('active', 'done');
-      const ind = el.querySelector('.step-indicator');
-      if (idx < activeIdx) {
-        el.classList.add('done');
-        if (ind) ind.innerHTML = CHECK_SVG;
-      } else if (idx === activeIdx) {
-        el.classList.add('active');
-        if (ind && step !== 'validated') ind.innerHTML = STEP_NUMBERS[step];
-      } else {
-        if (ind && step !== 'validated') ind.innerHTML = STEP_NUMBERS[step];
+
+    const wrappers = document.querySelectorAll('.step-wrapper');
+    const lines = document.querySelectorAll('.step-line');
+
+    wrappers.forEach((wrapper, idx) => {
+      // Clear previous states
+      wrapper.classList.remove('active', 'passed');
+      
+      if (idx === activeIdx) {
+        wrapper.classList.add('active'); // Current step
+      } else if (idx < activeIdx) {
+        wrapper.classList.add('passed'); // Completed step
       }
+    });
+
+    lines.forEach((line, idx) => {
+      line.classList.remove('active', 'passed');
+      if (idx < activeIdx) line.classList.add('passed');
+      else if (idx === activeIdx) line.classList.add('active');
     });
   }
 
-  return { init };
+  return { init, showQuickReplies };
 })();
 
 document.addEventListener('DOMContentLoaded', ChatUI.init);
