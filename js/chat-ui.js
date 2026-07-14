@@ -394,8 +394,8 @@ const ChatUI = (() => {
         if (!textToPlay.trim()) return resolve();
         
         const tl = segmentLang.includes('ml') ? 'ml' : 'en';
-        // Use Google Translate TTS for guaranteed high-quality female pronunciation
-        const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${tl}&q=${encodeURIComponent(textToPlay)}`;
+        // Use our Vercel Serverless Proxy to bypass all browser tracking/CORS blocks!
+        const url = `/api/tts?tl=${tl}&q=${encodeURIComponent(textToPlay)}`;
         
         const audio = new Audio(url);
         audio.playbackRate = _ttsSpeed;
